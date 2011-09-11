@@ -1,0 +1,1 @@
+arm-none-linux-gnueabi-g++.exe -o ../bin/attitude ../util/util.c ../gpio/gpio.c ../navboard/navboard.c ars.c attitude.c main_attitude.c
