@@ -1,6 +1,6 @@
 Introduction
 ------------
-This project provides an open source firmware for the AR.Drone by Parrot. 
+This project provides an open source firmware for the AR.Drone quadrocopter by Parrot. 
 
 WARNING: This project is not supported nor endorsed by Parrot S.A., using the this sofware will most likely void your warranty and might destroy your drone or make it fly away into deep space. Use at your own risk. 
 
@@ -11,7 +11,11 @@ Please post feedback on http://blog.perquin.com/blog/category/ardrone/ Thanks!
 
 Known Issues
 ------------
-The PID controller parameters have not been optimized yet and currently use 'P' parameters only. In particular the height controller will probably undershoot it's target height, or the drone might not have enough power to take off, this because of the missing 'I' term. 
+ - The PID controller parameters have not been optimized yet and currently only use 'P' parameters. In particular the height controller will probably settle below the target height, or the drone might not have enough power to take off.
+ - The OpenFlight user interface is very rudimentary.
+ - No soft landing function is implemented. In order to land: fly the drone to minimum altitude and then switch off the motors.
+ - 'Flat Trim' parameters are not saved and are estimated after OpenFlight connects. Place the drone on a horizontal surface before connecting with OpenFlight.
+ - No battery voltage monitoring. The drone will fall out of the sky once the battery is drained.
 
 
 Install
@@ -65,6 +69,7 @@ For pc directory
 
 Changelog
 ---------
-19-Sep-2011 Added ardrone/fly and pc/OpenFlight
-20-Jul-2011 Added video
-17-Jul-2011 Initial release
+19-Sep-2011 V03 Added ardrone/fly and pc/OpenFlight
+20-Jul-2011 V02 Added video
+17-Jul-2011 V01 Initial release
+
