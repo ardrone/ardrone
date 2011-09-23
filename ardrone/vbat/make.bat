@@ -1,0 +1,1 @@
+arm-none-linux-gnueabi-g++.exe -o ../bin/vbat vbat.c main_vbat.c
