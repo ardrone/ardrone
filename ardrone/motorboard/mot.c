@@ -29,17 +29,17 @@
 #include "motorboard.h"
 
 //need 0xff for reliable startup, after startup min pwm 0x50 is allowed
-const u16 mot_pwm_min=0x00; 
+const u16 mot_pwm_min=0x00;
 const u16 mot_pwm_max=0x1ff;
 
 //m0=Front Left m1=Front Right m3=Rear Right m4=Rear Left
-struct mot_struct
+typedef struct Mot_struct
 {
   float mot[4]; //motor speed setting. 0.0=min power, 1.0=full power
   u16 pwm[4];   //motor speed 0x00-0x1ff.  -- protected by mutex
   u08 led[4];   //led 0=off 1=red 2=green 3=orange -- protected by mutex
   u08 NeedToSendLedCmd;
-};
+} mot_struct;
 pthread_t mot_thread;
 pthread_mutex_t mot_mutex;
 mot_struct mot;
@@ -51,10 +51,10 @@ void *mot_main(void* data)
 	mot.NeedToSendLedCmd=1;
 	while(1) {
 		//5000us = 200Hz update interval
-		usleep(5000); 
+		usleep(5000);
 
 		pthread_mutex_lock(&mot_mutex);
-		
+
 		//write motor speed command
 		motorboard_SetPWM(mot.pwm[0],mot.pwm[1],mot.pwm[2],mot.pwm[3]);
 
@@ -73,24 +73,24 @@ int mot_Init() {
 
 	rc = motorboard_Init();
 	if(rc) return rc;
-	
+
 	mot.led[0]=MOT_LEDGREEN;
 	mot.led[1]=MOT_LEDGREEN;
 	mot.led[2]=MOT_LEDGREEN;
 	mot.led[3]=MOT_LEDGREEN;
-  
+
 	//create mutex
 	pthread_mutex_init(&mot_mutex, NULL);
 
-	//start mot thread 
-	rc = pthread_create(&mot_thread, NULL, mot_main, NULL); 
+	//start mot thread
+	rc = pthread_create(&mot_thread, NULL, mot_main, NULL);
 	if (rc) {
 		printf("ERROR: Return code from pthread_create(mot_thread) is %d\n", rc);
 		return 202;
 	}
 }
 
-void mot_SetLed(u08 mot_id, u08 led) 
+void mot_SetLed(u08 mot_id, u08 led)
 {
   mot_id &= 3;
   led &= 3;
@@ -106,14 +106,14 @@ void mot_SetLeds(u08 led0, u08 led1, u08 led2, u08 led3) {
   if(mot.led[2]!=led2&3) {mot.led[2]=led2&3; mot.NeedToSendLedCmd=1;}
   if(mot.led[3]!=led3&3) {mot.led[3]=led3&3; mot.NeedToSendLedCmd=1;}
   pthread_mutex_unlock(&mot_mutex);
-}  
+}
 
 void mot_SetPWM(u16 m0, u16 m1, u16 m2, u16 m3) {
   pthread_mutex_lock(&mot_mutex);
-  mot.pwm[0] = m0 & 0x1ff; 
-  mot.pwm[1] = m1 & 0x1ff; 
-  mot.pwm[2] = m2 & 0x1ff; 
-  mot.pwm[3] = m3 & 0x1ff; 
+  mot.pwm[0] = m0 & 0x1ff;
+  mot.pwm[1] = m1 & 0x1ff;
+  mot.pwm[2] = m2 & 0x1ff;
+  mot.pwm[3] = m3 & 0x1ff;
   pthread_mutex_unlock(&mot_mutex);
   //printf("===SetPWM(%d,%d,%d,%d)\r\n",m0,m1,m2,m3);
 }
@@ -121,10 +121,10 @@ void mot_SetPWM(u16 m0, u16 m1, u16 m2, u16 m3) {
 void mot_Stop()
 {
   pthread_mutex_lock(&mot_mutex);
-  mot.pwm[0] = 0; 
-  mot.pwm[1] = 0; 
-  mot.pwm[2] = 0; 
-  mot.pwm[3] = 0; 
+  mot.pwm[0] = 0;
+  mot.pwm[1] = 0;
+  mot.pwm[2] = 0;
+  mot.pwm[3] = 0;
   mot.mot[0]=0;
   mot.mot[1]=0;
   mot.mot[2]=0;
@@ -139,7 +139,7 @@ void mot_Run(float m0, float m1, float m2, float m3)
   mot.mot[1]=m1;
   mot.mot[2]=m2;
   mot.mot[3]=m3;
-  
+
   //convert to pwm values, clipped at mot_pwm_min and mot_pwm_max
   float pwm[4];
   for(int i=0;i<4;i++) {
@@ -149,11 +149,11 @@ void mot_Run(float m0, float m1, float m2, float m3)
 	if(pwm[i]<mot_pwm_min) pwm[i]=mot_pwm_min;
 	if(pwm[i]>mot_pwm_max) pwm[i]=mot_pwm_max;
   }
-    
+
   mot_SetPWM((u16)pwm[0],(u16)pwm[1],(u16)pwm[2],(u16)pwm[3]);
 }
 
-void mot_GetMot(float *m) 
+void mot_GetMot(float *m)
 {
 	m[0]=mot.mot[0];
 	m[1]=mot.mot[1];
