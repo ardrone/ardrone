@@ -4,7 +4,7 @@
  * sensor data as inputs.                                              *
  *                                                                     *
  ***********************************************************************
- *                                                                     * 
+ *                                                                     *
  *    Author:         Tom Pycke                                        *
  *    Filename:       ars.c                                            *
  *    Date:           17/10/2007                                       *
@@ -40,7 +40,7 @@
 #include <math.h>
 
 
-void ars_Init(struct ars_Gyro1DKalman *ars, double Q_angle, double Q_gyro, double R_angle)
+void ars_Init(ars_Gyro1DKalman *ars, double Q_angle, double Q_gyro, double R_angle)
 {
 	ars->Q_angle = Q_angle;
 	ars->Q_gyro  = Q_gyro;
@@ -50,9 +50,9 @@ void ars_Init(struct ars_Gyro1DKalman *ars, double Q_angle, double Q_gyro, doubl
 /*
  * The predict function. Updates 2 variables:
  * our model-state x and the 2x2 matrix P
- *     
- * x = [ angle, bias ]' 
- * 
+ *
+ * x = [ angle, bias ]'
+ *
  *   = F x + B u
  *
  *   = [ 1 -dt, 0 1 ] [ angle, bias ] + [ dt, 0 ] [ dotAngle 0 ]
@@ -72,7 +72,7 @@ void ars_Init(struct ars_Gyro1DKalman *ars, double Q_angle, double Q_gyro, doubl
  *
  *
  */
-void ars_predict(struct ars_Gyro1DKalman *ars, const double dotAngle, const double dt)
+void ars_predict(ars_Gyro1DKalman *ars, const double dotAngle, const double dt)
 {
 	ars->x_angle += dt * (dotAngle - ars->x_bias);
 
@@ -83,7 +83,7 @@ void ars_predict(struct ars_Gyro1DKalman *ars, const double dotAngle, const doub
 }
 
 /*
- *  The update function updates our model using 
+ *  The update function updates our model using
  *  the information from a 2nd measurement.
  *  Input angle_m is the angle measured by the accelerometer.
  *
@@ -92,7 +92,7 @@ void ars_predict(struct ars_Gyro1DKalman *ars, const double dotAngle, const doub
  *  S = H P transpose(H) + R
  *    = [ 1 0 ] P [ 1, 0 ] + R
  *    = P(0,0) + R
- * 
+ *
  *  K = P transpose(H) S^-1
  *    = [ P(0,0), P(1,0) ] / S
  *
@@ -106,21 +106,21 @@ void ars_predict(struct ars_Gyro1DKalman *ars, const double dotAngle, const doub
  *    = [ P(0,0)-P(0,0)*K(0)  P(0,1)-P(0,1)*K(0),
  *        P(1,0)-P(0,0)*K(1)  P(1,1)-P(0,1)*K(1) ]
  */
-double ars_update(struct ars_Gyro1DKalman *ars, const double angle_m)
+double ars_update(ars_Gyro1DKalman *ars, const double angle_m)
 {
 	const double y = angle_m - ars->x_angle;
-	
+
 	const double S = ars->P_00 + ars->R_angle;
 	const double K_0 = ars->P_00 / S;
 	const double K_1 = ars->P_10 / S;
-	
+
 	ars->x_angle +=  K_0 * y;
 	ars->x_bias  +=  K_1 * y;
-	
+
 	ars->P_00 -= K_0 * ars->P_00;
 	ars->P_01 -= K_0 * ars->P_01;
 	ars->P_10 -= K_1 * ars->P_00;
 	ars->P_11 -= K_1 * ars->P_01;
-	
+
 	return ars->x_angle;
 }

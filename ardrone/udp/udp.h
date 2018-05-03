@@ -2,13 +2,13 @@
 #define __UDP_H
 #include <netinet/in.h>
 
-struct udp_struct
+typedef struct Udp_struct
 {
   int s;
   struct sockaddr_in si_me;
   struct sockaddr_in si_other;
   socklen_t slen;
-};
+} udp_struct;
 
 int  udpClient_Init(udp_struct *udp, const char* host, int port);
 int  udpClient_Send(udp_struct *udp, char* buf, int len);

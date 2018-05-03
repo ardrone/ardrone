@@ -17,7 +17,7 @@ int main(void)
   int msglen;
   char buf[512];
   
-  if(udpServer_Init(&udp,9930)) diep("udpServer_Init");
+  if(udpServer_Init(&udp,9930, 0)) diep("udpServer_Init");
   
   for (int i=0; i<10; i++) {
     int cnt=0;
