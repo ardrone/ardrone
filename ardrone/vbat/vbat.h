@@ -21,7 +21,7 @@
 #ifndef _VBAT_H
 #define _VBAT_H
 
-struct vbat_struct {
+typedef struct Vbat_struct {
 	float vbat;
 	float vdd0;
 	float vdd1;
@@ -33,7 +33,7 @@ struct vbat_struct {
 	float vdd2_setpoint;
 	float vdd3_setpoint;
 	float vdd4_setpoint;
-};
+}vbat_struct;
 
 int vbat_init(vbat_struct *vbat);
 int vbat_read(vbat_struct *vbat);
